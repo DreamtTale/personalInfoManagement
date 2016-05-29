@@ -52,7 +52,7 @@ public class Insert extends JDialog {
 		name.setBounds(80, 40, 55, 15);
 		insertPanel.add(name);
 		JLabel sex = new JLabel("ÐÔ    ±ð:");
-		sex.setBounds(80,65, 55, 15);
+		sex.setBounds(80, 65, 55, 15);
 		insertPanel.add(sex);
 		JLabel age = new JLabel("Äê     Áä:");
 		age.setBounds(80, 90, 55, 15);
@@ -121,7 +121,7 @@ public class Insert extends JDialog {
 						insertInfo[6] = new Person(idField.getText());
 						insertInfo[7] = new Person(payField.getText());
 						insertInfo[8] = new Person(priseField.getText());
-						Display.add(insertInfo);
+						Display.refresh(Display.MODEL);
 						String sql = "insert into person";
 						sql = sql + " values(";
 						sql = sql + "'" + numField.getText() + "',";
@@ -174,11 +174,4 @@ public class Insert extends JDialog {
 		priseField.setText("");
 		numField.requestFocus();
 	}
-
-//	public static void main(String[] args) {
-//		Insert insert = new Insert();
-//		insert.setLocationRelativeTo(null);
-//		insert.setModal(true);
-//		insert.setVisible(true);
-//	}
 }

@@ -129,8 +129,6 @@ public class Revise extends JDialog {
 					reviseInfo[6] = new Person(idField.getText());
 					reviseInfo[7] = new Person(payField.getText());
 					reviseInfo[8] = new Person(priseField.getText());
-					Display.delete(selectRow);
-					Display.add(reviseInfo);
 					String sql = "update person ";
 					sql = sql + "set name = '" + nameField.getText() + "',";
 					sql = sql + "sex = '" + sexField.getText() + "',";
@@ -145,6 +143,7 @@ public class Revise extends JDialog {
 					sql = sql + "prise = " + priseField.getText() + "";
 					sql = sql + " where num ='" + numField.getText()+"'";
 					stat.execute(sql);
+					Display.refresh(Display.MODEL);
 					JOptionPane.showMessageDialog(null, "更改成功");
 					dispose();
 				} catch (Exception e1) {
@@ -163,11 +162,4 @@ public class Revise extends JDialog {
 		});
 		buttonPanel.add(cancelButton);
 	}
-
-//	public static void main(String[] args) {
-//		Revise revise = new Revise(5);
-//		revise.setLocationRelativeTo(null);
-//		revise.setModal(true);
-//		revise.setVisible(true);
-//	}
 }

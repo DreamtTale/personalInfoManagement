@@ -17,10 +17,12 @@ import javax.swing.event.ChangeEvent;
 public class Delete extends JDialog {
 	private static final long serialVersionUID = 1L;
 	private final JPanel panel;
+	private int model;
 
-	public Delete(int selectRow) {
+	public Delete(int selectRow,int m) {
 		setTitle("É¾³ýÐÅÏ¢");
 		setBounds(0, 0, 300, 250);
+		model=m;
 		panel = new JPanel() {
 			private static final long serialVersionUID = 1L;
 
@@ -84,14 +86,14 @@ public class Delete extends JDialog {
 							for (int i = 0; i <= selectRow; i++) {
 								res.next();
 							}
-							Display.delete(selectRow);
+							Display.refresh(model);
 							int numBegin=Integer.valueOf(tf.getText()),
 									numEnd=Integer.valueOf(tf2.getText());
 							for (int i = 0; i <= numBegin; i++) {
 								res.next();
 							}
 							for(int i=numBegin;i<=numEnd;i++){
-								Display.delete(numBegin);
+								Display.refresh(model);
 								String num=res.getString("num");
 								sql = "delete from wages";
 								sql = sql + " where num = '" + num + "';";
@@ -115,7 +117,7 @@ public class Delete extends JDialog {
 							for (int i = 0; i <= selectRow; i++) {
 								res.next();
 							}
-							Display.delete(selectRow);
+							Display.refresh(model);
 							int num=res.getInt("num");
 							sql = "delete from wages";
 							sql = sql + " where num = '" + num + "';";
@@ -145,12 +147,5 @@ public class Delete extends JDialog {
 			}
 		});
 		buttonPanel.add(cancelButton);
-	}
-
-	public static void main(String[] args) {
-		Delete delete = new Delete(5);
-		delete.setLocationRelativeTo(null);
-		delete.setModal(true);
-		delete.setVisible(true);
 	}
 }

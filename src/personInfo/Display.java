@@ -3,8 +3,7 @@ package personInfo;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -16,11 +15,13 @@ public class Display extends JFrame {
 	private static JTable table;
 	private static DefaultTableModel tableModel;
 	private static JPanel tablePanel;
+	static int MODEL;
 
 	public Display() throws Exception {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 730, 530);
+		MODEL = 0;
 
 		panel = new JPanel() {
 			private static final long serialVersionUID = 1L;
@@ -52,6 +53,21 @@ public class Display extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setBounds(10, 10, 683, 397);
 		tablePanel.add(scrollPane);
+
+		JComboBox<String> jcb = new JComboBox<String>(new String[] { "all", "person", "wages" });
+		jcb.setBounds(600, 10, 100, 20);
+		jcb.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				MODEL = jcb.getSelectedIndex();
+				try {
+					refresh(MODEL);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		panel.add(jcb);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setBounds(10, 460, 705, 33);
@@ -96,16 +112,31 @@ public class Display extends JFrame {
 						for (int i = 0; i <= selectRow; i++) {
 							res.next();
 						}
-						Display.delete(selectRow);
 						int num = res.getInt("num");
-						sql = "delete from wages";
-						sql = sql + " where num = '" + num + "';";
-						stat.execute(sql);
-						sql = "delete from person";
-						sql = sql + " where num = '" + num + "';";
-						stat.execute(sql);
+						switch(Display.MODEL){
+						case 0:
+							sql = "delete from wages";
+							sql = sql + " where num = '" + num + "';";
+							stat.execute(sql);
+							sql = "delete from person";
+							sql = sql + " where num = '" + num + "';";
+							stat.execute(sql);
+							break;
+						case 1:
+							sql = "delete from person";
+							sql = sql + " where num = '" + num + "';";
+							stat.execute(sql);
+							break;
+						case 2:
+							sql = "delete from wages";
+							sql = sql + " where num = '" + num + "';";
+							stat.execute(sql);
+							break;
+						}
+						refresh(MODEL);
 						JOptionPane.showMessageDialog(null, "删除成功");
 					} catch (Exception e1) {
+						e1.printStackTrace();
 						JOptionPane.showMessageDialog(null, "删除失败");
 					}
 				} else {
@@ -183,17 +214,89 @@ public class Display extends JFrame {
 		tablePanel.add(table);
 	}
 
-	public static void add(Person[] insertInfo) {
-		String[] info = new String[9];
-		for (int i = 0; i < 9; i++) {
-			info[i] = insertInfo[i].get();
+	public static void refresh(int m) throws Exception {
+		switch (m) {
+		case 0: {
+			Statement stat = ConnectDB.connect();
+			String sql = "select count(*) from person";
+			ResultSet res = stat.executeQuery(sql);
+			res.next();
+			int row = res.getInt(1);
+			int col = 9;
+
+			sql = "select person.num,name,sex,age,tel,addr,id,pay,prise from person join wages on(person.num=wages.num)";
+			res = stat.executeQuery(sql);
+
+			String[] tableHead = { "认证号", "姓名", "性别", "年龄", "电话", "地址", "身份证号", "工资", "奖金" };
+			Object[][] tableInfo = new Object[row][];
+			int i = 0;
+			while (res.next()) {
+				tableInfo[i] = new Object[col];
+				for (int j = 0; j < col; j++) {
+					tableInfo[i][j] = res.getObject(j + 1).toString().trim();
+				}
+				i++;
+			}
+			tableModel.setDataVector(tableInfo, tableHead);
+			tablePanel.repaint();
+			break;
 		}
-		tableModel.addRow(info);
-		table.repaint();
+		case 1: {
+			Statement stat = ConnectDB.connect();
+			String sql = "select count(*) from person";
+			ResultSet res = stat.executeQuery(sql);
+			res.next();
+			int row = res.getInt(1);
+			int col = 7;
+
+			sql = "select num,name,sex,age,tel,addr,id from person";
+			res = stat.executeQuery(sql);
+
+			String[] tableHead = { "认证号", "姓名", "性别", "年龄", "电话", "地址", "身份证号" };
+			Object[][] tableInfo = new Object[row][];
+			int i = 0;
+			while (res.next()) {
+				tableInfo[i] = new Object[col];
+				for (int j = 0; j < col; j++) {
+					tableInfo[i][j] = res.getObject(j + 1).toString().trim();
+				}
+				i++;
+			}
+			tableModel.setDataVector(tableInfo, tableHead);
+			tablePanel.repaint();
+			break;
+		}
+		case 2: {
+			Statement stat = ConnectDB.connect();
+			String sql = "select count(*) from person";
+			ResultSet res = stat.executeQuery(sql);
+			res.next();
+			int row = res.getInt(1);
+			int col = 3;
+
+			sql = "select num,pay,prise from wages";
+			res = stat.executeQuery(sql);
+
+			String[] tableHead = { "认证号", "工资", "奖金" };
+			Object[][] tableInfo = new Object[row][];
+			int i = 0;
+			while (res.next()) {
+				tableInfo[i] = new Object[col];
+				for (int j = 0; j < col; j++) {
+					tableInfo[i][j] = res.getObject(j + 1).toString().trim();
+				}
+				i++;
+			}
+			tableModel.setDataVector(tableInfo, tableHead);
+			tablePanel.repaint();
+			break;
+		}
+		}
 	}
 
-	public static void delete(int selectRowIndex) {
-		tableModel.removeRow(selectRowIndex);
-		table.repaint();
+	public static void main(String ars[]) throws Exception {
+		Display showFrame = new Display();
+		showFrame.setLocationRelativeTo(null);
+		showFrame.setVisible(true);
 	}
 }

@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.sql.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -80,26 +79,15 @@ public class Login extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				try {
-					Statement stat= ConnectDB.connect();
-					String sql = "select * from userInformation";
-					sql = sql + " where userName =" + "'";
-					sql = sql + userName.getText() + "'";
-					sql = sql + " and password =" + "'";
-					sql = sql + String.valueOf(password.getPassword()) + "'";
-					ResultSet res = stat.executeQuery(sql);
-					if (res.next()) {
-						JOptionPane.showMessageDialog(null, "µÇÂ¼³É¹¦");
-						setVisible(false);
-						Display showFrame = new Display();
-						showFrame.setLocationRelativeTo(null);
-						showFrame.setVisible(true);
-					} else {
-						JOptionPane.showMessageDialog(null, "µÇÂ¼Ê§°Ü");
-					}
-					res.close();
-					stat.close();
+					ConnectDB.init(userName.getText(),String.valueOf(password.getPassword()));
+					ConnectDB.connect();
+					JOptionPane.showMessageDialog(null, "µÇÂ¼³É¹¦");
+					setVisible(false);
+					Display showFrame = new Display();
+					showFrame.setLocationRelativeTo(null);
+					showFrame.setVisible(true);
 				} catch (Exception e1) {
-					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "µÇÂ¼Ê§°Ü");
 				}
 			}
 		});
